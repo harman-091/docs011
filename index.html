@@ -2,56 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Secure PDF Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDP Document Viewer</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      background: #111;
+      background: #000;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      overflow-y: scroll;
+      font-family: system-ui, sans-serif;
     }
-    iframe {
+
+    img {
       width: 100%;
-      height: 100%;
-      border: none;
+      max-width: 850px;
+      margin: 8px auto;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+      border-radius: 6px;
+      box-shadow: 0 0 12px rgba(255,255,255,0.1);
     }
-    .overlay {
+
+    #overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      font-family: Arial, sans-serif;
-      font-size: 1.5rem;
+      background: rgba(0,0,0,0.95);
       display: none;
       align-items: center;
       justify-content: center;
+      color: white;
+      font-size: 1.4rem;
       text-align: center;
-      z-index: 999;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    #overlay.show {
+      display: flex;
+      animation: fadein 0.6s ease-in-out;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   </style>
 </head>
 <body oncontextmenu="return false;">
-  <iframe src="EDP__________.pdf#toolbar=0&navpanes=0&scrollbar=0"></iframe>
+  <div id="viewer"></div>
 
-  <div class="overlay" id="overlay">
-    <p>⏳ Access expired!<br>Document closed after 40 seconds.</p>
+  <div id="overlay">
+    <div>
+      ⏳ Access time expired!<br><br>
+      Please contact the document owner for extended viewing.
+    </div>
   </div>
 
   <script>
-    // Disable keyboard shortcuts (Ctrl+S, Print, etc.)
-    document.onkeydown = function(e) {
-      if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'u' || e.key === 'Shift')) {
-        e.preventDefault();
-        return false;
-      }
-    };
+    const viewer = document.getElementById('viewer');
+    const overlay = document.getElementById('overlay');
 
-    // Timer for 40 seconds
+    // total number of pages
+    const totalPages = 21;
+
+    // loop and append images
+    for (let i = 1; i <= totalPages; i++) {
+      const img = document.createElement('img');
+      img.src = `web/EDP__________ conv ${i}.jpeg`;
+      img.alt = `Page ${i}`;
+      viewer.appendChild(img);
+    }
+
+    // timer (40 seconds)
     setTimeout(() => {
-      document.querySelector("iframe").style.display = "none";
-      document.getElementById("overlay").style.display = "flex";
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
     }, 40000);
+
+    // prevent keyboard shortcuts like Ctrl+S, Ctrl+P, PrintScreen
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.key.toLowerCase() === 'p') e.preventDefault();
+      if (e.key === 'PrintScreen') {
+        overlay.classList.add('show');
+      }
+    });
   </script>
 </body>
 </html>
