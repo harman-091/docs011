@@ -68,42 +68,43 @@
     const viewer = document.getElementById('viewer');
     const overlay = document.getElementById('overlay');
     const totalPages = 21;
-    const duration = 40000; // 40 seconds
+    const DURATION = 40000; // 40 seconds
 
-    // show overlay instantly if time expired earlier
-    const expiry = localStorage.getItem('expiryTime');
+    // get or set expiry
+    let expiry = localStorage.getItem('expiryTime');
     const now = Date.now();
-    if (expiry && now > parseInt(expiry)) {
+
+    if (!expiry) {
+      expiry = now + DURATION;
+      localStorage.setItem('expiryTime', expiry);
+    }
+
+    expiry = parseInt(expiry);
+
+    // if expired => block immediately
+    if (now >= expiry) {
       overlay.classList.add('show');
       document.body.style.overflow = 'hidden';
-    }
-
-    // generate all images
-    for (let i = 1; i <= totalPages; i++) {
-      const img = document.createElement('img');
-      img.src = `web/EDP__________ conv ${i}.jpeg`;
-      img.alt = `Page ${i}`;
-      viewer.appendChild(img);
-    }
-
-    // only start timer if not already expired
-    if (!expiry || now < parseInt(expiry)) {
-      if (!expiry) {
-        // set expiry timestamp
-        localStorage.setItem('expiryTime', now + duration);
+    } else {
+      // render all pages
+      for (let i = 1; i <= totalPages; i++) {
+        const img = document.createElement('img');
+        img.src = `web/EDP__________ conv ${i}.jpeg`;
+        img.alt = `Page ${i}`;
+        viewer.appendChild(img);
       }
 
-      const remaining = expiry ? parseInt(expiry) - now : duration;
-
+      // start countdown for remaining time
+      const remaining = expiry - now;
       setTimeout(() => {
         overlay.classList.add('show');
         document.body.style.overflow = 'hidden';
       }, remaining);
     }
 
-    // prevent shortcuts
+    // disable shortcuts
     document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey || e.key.toLowerCase() === 'p') e.preventDefault();
+      if (e.ctrlKey || ['p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault();
       if (e.key === 'PrintScreen') overlay.classList.add('show');
     });
   </script>
