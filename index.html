@@ -1,113 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Secure PDF Viewer</title>
-
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      background-color: #000;
+      height: 100vh;
       overflow: hidden;
-      height: 100%;
-      width: 100%;
-      color: #fff;
-      font-family: Arial, sans-serif;
+      background: #111;
     }
-
     iframe {
       width: 100%;
       height: 100%;
       border: none;
-      filter: brightness(0.97);
     }
-
-    .timer {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: bold;
-      color: #00e0ff;
-      z-index: 999;
-    }
-
     .overlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.7);
-      display: flex;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 1.5rem;
+      display: none;
       align-items: center;
       justify-content: center;
-      color: #fff;
-      font-size: 22px;
-      font-weight: bold;
-      z-index: 9999;
-      visibility: hidden;
+      text-align: center;
+      z-index: 999;
     }
   </style>
 </head>
-<body>
-  <div class="timer">Closing in <span id="seconds">40</span>s</div>
-  <div class="overlay" id="overlay">⏳ Time’s Up! Access Closed.</div>
+<body oncontextmenu="return false;">
+  <iframe src="EDP__________.pdf#toolbar=0&navpanes=0&scrollbar=0"></iframe>
 
-  <!-- ✅ Mobile-safe Google Docs PDF Viewer -->
-  <iframe 
-    src="https://docs.google.com/gview?embedded=true&url=https://docs011.vercel.app/EDP__________.pdf"
-    id="pdfFrame">
-  </iframe>
+  <div class="overlay" id="overlay">
+    <p>⏳ Access expired!<br>Document closed after 40 seconds.</p>
+  </div>
 
   <script>
-    // --- Disable Right-click ---
-    document.addEventListener("contextmenu", e => e.preventDefault());
-
-    // --- Disable Ctrl+S, Ctrl+P, Ctrl+U, Print Screen, etc ---
-    document.addEventListener("keydown", e => {
-      if (e.ctrlKey && ["s","S","p","P","u","U"].includes(e.key)) {
+    // Disable keyboard shortcuts (Ctrl+S, Print, etc.)
+    document.onkeydown = function(e) {
+      if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'u' || e.key === 'Shift')) {
         e.preventDefault();
-        alert("⚠️ Restricted Action!");
+        return false;
       }
-      if (e.key === "PrintScreen") {
-        navigator.clipboard.writeText("Screenshots are disabled! ⚠️");
-        alert("⚠️ Screenshot Blocked!");
-      }
-    });
+    };
 
-    // --- Optional Screenshot Detection (triggers blur) ---
-    let hidden = false;
-    const iframe = document.getElementById("pdfFrame");
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden && !hidden) {
-        iframe.style.filter = "blur(20px)";
-        hidden = true;
-      } else {
-        iframe.style.filter = "brightness(0.97)";
-        hidden = false;
-      }
-    });
-
-    // --- 40-second Timer + Redirect ---
-    let timeLeft = 40;
-    const timerEl = document.getElementById("seconds");
-    const overlay = document.getElementById("overlay");
-
-    const timer = setInterval(() => {
-      timeLeft--;
-      timerEl.textContent = timeLeft;
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        document.body.style.overflow = "hidden";
-        overlay.style.visibility = "visible";
-        setTimeout(() => {
-          window.location.replace("https://google.com"); // redirect after close
-        }, 2000);
-      }
-    }, 1000);
+    // Timer for 40 seconds
+    setTimeout(() => {
+      document.querySelector("iframe").style.display = "none";
+      document.getElementById("overlay").style.display = "flex";
+    }, 40000);
   </script>
 </body>
 </html>
