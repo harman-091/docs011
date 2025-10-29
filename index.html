@@ -48,6 +48,20 @@
       animation: fadein 0.6s ease-in-out;
     }
 
+    #timer {
+      position: fixed;
+      top: 12px;
+      right: 20px;
+      background: rgba(255,255,255,0.15);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2);
+    }
+
     @keyframes fadein {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -55,6 +69,7 @@
   </style>
 </head>
 <body oncontextmenu="return false;">
+  <div id="timer"></div>
   <div id="viewer"></div>
 
   <div id="overlay">
@@ -67,10 +82,10 @@
   <script>
     const viewer = document.getElementById('viewer');
     const overlay = document.getElementById('overlay');
+    const timer = document.getElementById('timer');
     const totalPages = 21;
-    const DURATION = 10000; // 10 seconds
+    const DURATION = 15000; // 15 seconds
 
-    // get or set expiry
     let expiry = localStorage.getItem('expiryTime');
     const now = Date.now();
 
@@ -81,12 +96,12 @@
 
     expiry = parseInt(expiry);
 
-    // if expired => block immediately
     if (now >= expiry) {
       overlay.classList.add('show');
       document.body.style.overflow = 'hidden';
+      timer.style.display = 'none';
     } else {
-      // render all pages
+      // load images
       for (let i = 1; i <= totalPages; i++) {
         const img = document.createElement('img');
         img.src = `web/EDP__________ conv ${i}.jpeg`;
@@ -94,15 +109,25 @@
         viewer.appendChild(img);
       }
 
-      // start countdown for remaining time
-      const remaining = expiry - now;
+      const interval = setInterval(() => {
+        const remaining = expiry - Date.now();
+        if (remaining <= 0) {
+          clearInterval(interval);
+          timer.textContent = "";
+          overlay.classList.add('show');
+          document.body.style.overflow = 'hidden';
+        } else {
+          timer.textContent = `Time left: ${(remaining / 1000).toFixed(1)}s`;
+        }
+      }, 100);
+
       setTimeout(() => {
         overlay.classList.add('show');
         document.body.style.overflow = 'hidden';
-      }, remaining);
+        timer.style.display = 'none';
+      }, expiry - now);
     }
 
-    // disable shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey || ['p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault();
       if (e.key === 'PrintScreen') overlay.classList.add('show');
