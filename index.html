@@ -67,11 +67,18 @@
   <script>
     const viewer = document.getElementById('viewer');
     const overlay = document.getElementById('overlay');
-
-    // total number of pages
     const totalPages = 21;
+    const duration = 40000; // 40 seconds
 
-    // loop and append images
+    // show overlay instantly if time expired earlier
+    const expiry = localStorage.getItem('expiryTime');
+    const now = Date.now();
+    if (expiry && now > parseInt(expiry)) {
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // generate all images
     for (let i = 1; i <= totalPages; i++) {
       const img = document.createElement('img');
       img.src = `web/EDP__________ conv ${i}.jpeg`;
@@ -79,18 +86,25 @@
       viewer.appendChild(img);
     }
 
-    // timer (40 seconds)
-    setTimeout(() => {
-      overlay.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    }, 40000);
+    // only start timer if not already expired
+    if (!expiry || now < parseInt(expiry)) {
+      if (!expiry) {
+        // set expiry timestamp
+        localStorage.setItem('expiryTime', now + duration);
+      }
 
-    // prevent keyboard shortcuts like Ctrl+S, Ctrl+P, PrintScreen
+      const remaining = expiry ? parseInt(expiry) - now : duration;
+
+      setTimeout(() => {
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }, remaining);
+    }
+
+    // prevent shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey || e.key.toLowerCase() === 'p') e.preventDefault();
-      if (e.key === 'PrintScreen') {
-        overlay.classList.add('show');
-      }
+      if (e.key === 'PrintScreen') overlay.classList.add('show');
     });
   </script>
 </body>
