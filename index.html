@@ -1,1 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure PDF Viewer</title>
+<style>
+  body {
+    font-family: Poppins, Arial, sans-serif;
+    background: #f5f6fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  iframe {
+    width: 80%;
+    height: 90vh;
+    border: 3px solid #00bfa6;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .message {
+    display: none;
+    font-size: 1.3rem;
+    color: #e84118;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  #countdown {
+    font-size: 1rem;
+    margin-top: 10px;
+    color: #555;
+  }
+</style>
+</head>
+<body>
 
+<h2>PDF Access Active ⏳</h2>
+<p id="countdown">Access ends in 40 seconds...</p>
+
+<iframe id="pdfFrame" src="./EDP.pdf"></iframe>
+
+<div id="lockMessage" class="message">⛔ Time’s up! Access to this file has expired.</div>
+
+<script>
+  let seconds = 40;
+  const countdown = document.getElementById("countdown");
+  
+  const timer = setInterval(() => {
+    seconds--;
+    countdown.textContent = `Access ends in ${seconds} seconds...`;
+    if (seconds <= 0) clearInterval(timer);
+  }, 1000);
+
+  setTimeout(() => {
+    document.getElementById('pdfFrame').style.display = 'none';
+    document.querySelector('h2').style.display = 'none';
+    countdown.style.display = 'none';
+    document.getElementById('lockMessage').style.display = 'block';
+    
+    // Optional redirect after 5 seconds
+    setTimeout(() => {
+      window.location.href = "https://github.com/"; // change this if you want
+    }, 5000);
+
+  }, 40000); // 40 seconds = 40000 ms
+</script>
+
+</body>
+</html>
